@@ -2,15 +2,15 @@
 
 IMERSÃO PROFISSIONAL: FÁBRICA DE SOFTWARE
 
-1.Integrantes da equipe do projeto:
+ 1. Integrantes da equipe do projeto:
 
 Caetano Mikulis, Gabriela Mendes, Gustavo Kenzo, Ryan do Vale, Leonardo Sampaio.
 
-2.Nome do Projeto: 
+ 2. Nome do Projeto: 
 
 Reserva Hub - Um sistemas de reservas para coworkings.
 
-3.Descrição do Projeto:
+ 3. Descrição do Projeto:
 
 Nosso projeto consiste no desenvolvimento de uma aplicação web para gestão de espaços de coworking, permitindo o cadastro de usuários, gerenciamento de salas e estações de trabalho, e realização de reservas em datas e horários específicos. Nosso principal objetivo é otimizar a utilização dos espaços compartilhados, reduzir conflitos de agendamento e fornecer aos administradores uma visão centralizada da ocupação do coworking.
 O sistema poderá ser utilizado por clientes do coworking para reservar espaços e por administradores para gerenciar disponibilidade, usuários e relatórios.
