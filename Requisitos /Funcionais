@@ -1,1 +1,29 @@
+Requisitos funcionais:
 
+RF01 – Cadastro: permitir cadastro de usuário (nome, CPF e senha).
+
+RF02 – Login: permitir login e logout com CPF e senha.
+
+RF03 – Recuperação: permitir recuperação de senha.
+
+RF04 – Administrador: permitir gerenciar usuários (editar, bloquear e excluir).
+
+RF05 – Cadastrar salas: permitir cadastrar salas e posições de trabalho.
+
+RF06 – Capacidade e recursos: definir capacidade e recursos da sala (projetor, mesa, TV).
+
+RF07 – Lista de espaços: exibir lista de espaços disponíveis.
+
+RF08 – Horários disponíveis: visualizar horários disponíveis.
+
+RF09 – Reservar: realizar reservas.
+
+RF10 – Cancelamento: cancelar reservas.
+
+RF11 – Conflitos: impedir reservas conflitantes.
+
+RF12 – Visualização: visualizar reservas ativas.
+
+RF13 – Confirmação: enviar confirmação de reservas.
+
+RF14 – Histórico: administrador visualizar histórico.
