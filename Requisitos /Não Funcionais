@@ -1,1 +1,23 @@
+Requisitos não funcionais:
 
+RNF01 – Múltiplos: suportar múltiplos usuários simultaneamente.
+
+RNF02 – Tempo de Resposta: responder em até 10 segundos.
+
+RNF03 – Criptografia: senhas armazenadas com criptografia (SHA-5).
+
+RNF04 – Segurança: autenticação segura com JWT.
+
+RNF05 – Restrição: acesso administrativo restrito por perfil.
+
+RNF06 – Interface: interface responsiva (mobile e desktop).
+
+RNF07 – Navegação: navegação intuitiva.
+
+RNF08 – Disponibilidade: sistema disponível constantemente.
+
+RNF09 – Backup: backups diários.
+
+RNF10 – Arquitetura: seguir padrão de arquitetura.
+
+RNF11 – Documentação: possuir documentação técnica.
