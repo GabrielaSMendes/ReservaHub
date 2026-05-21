@@ -9,6 +9,7 @@ target/
 .classpath
 .project
 *.iml
+*.code-workspace
 
 ### Frontend / Node ###
 node_modules/
