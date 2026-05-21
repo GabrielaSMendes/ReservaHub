@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "name": "ReservaHub-backend",
+      "path": "ReservaHub-backend"
+    },
+    {
+      "name": "Documentacao",
+      "path": "Documentacao"
+    }
+  ],
+  "settings": {
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.import.maven.enabled": true
+  }
+}

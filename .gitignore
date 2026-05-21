@@ -1,0 +1,30 @@
+### Java / Maven ###
+target/
+**/target/
+
+### IDEs ###
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+*.iml
+
+### Frontend / Node ###
+node_modules/
+dist/
+build/
+.next/
+coverage/
+
+### Sistema operacional ###
+.DS_Store
+Thumbs.db
+
+### Logs ###
+*.log
+
+### Configuracao local / credenciais ###
+.env
+.env.*
+**/application-local.properties
