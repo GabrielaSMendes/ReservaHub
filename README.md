@@ -41,5 +41,7 @@ rápida e eficiente.
 
 
 Banco de dados: Ryan e Leonardo
+
 Front-end: Caetano e Gabriela
+
 Back-end: Gustavo e Marcel
