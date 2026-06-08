@@ -34,6 +34,12 @@ public class SalaController {
         return ResponseEntity.ok(salaService.listar());
     }
 
+    @GetMapping("/ativas")
+    public ResponseEntity<List<Sala>> listarAtivas() {
+
+        return ResponseEntity.ok(salaService.listarAtivas());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Sala> buscarPorId(@PathVariable Integer id) {
 

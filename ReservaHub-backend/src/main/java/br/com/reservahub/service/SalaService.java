@@ -32,6 +32,10 @@ public class SalaService {
         return salaRepository.findAll();
     }
 
+    public List<Sala> listarAtivas() {
+        return salaRepository.findByStatusTrue();
+    }
+
     /*
      * RETORNA Sala AO INVÉS DE Optional<Sala>
      * PARA COMPATIBILIDADE COM O CONTROLLER

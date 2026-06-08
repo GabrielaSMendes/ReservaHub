@@ -28,10 +28,12 @@ public class ReservaService {
         this.salaService = salaService;
     }
 
+    @Transactional(readOnly = true)
     public List<ReservaDto> listar() {
         return reservaRepository.findAll().stream().map(this::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public ReservaDto buscarPorId(Integer id) {
         return toDto(buscarEntidade(id));
     }
