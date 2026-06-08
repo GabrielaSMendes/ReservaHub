@@ -36,3 +36,12 @@ trabalho. Além disso, o sistema também atende profissionais que utilizam esses
 espaços, como freelancers, empreendedores, equipes remotas e pequenas
 empresas, que buscam praticidade e autonomia para realizar reservas de forma
 rápida e eficiente.
+
+7.Divisão da segunda entrega:
+
+
+Banco de dados: Ryan e Leonardo
+
+Front-end: Caetano e Gabriela
+
+Back-end: Gustavo e Marcel
