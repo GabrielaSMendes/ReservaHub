@@ -11,7 +11,7 @@ O objetivo e entregar primeiro a base tecnica do sistema, depois os fluxos princ
 - Duracao sugerida de cada sprint: 1 semana.
 - Projeto web para gestao de reservas de coworking.
 - Perfis principais: usuario comum e administrador.
-- Banco de dados inicial baseado no script `Banco/reserva_hub.sql`.
+- Banco de dados inicial baseado no script `ReservaHub-database/reserva_hub.sql`.
 - O sistema deve possuir interface responsiva, autenticacao segura, controle de acesso por perfil e documentacao tecnica.
 
 ## Sprint 0 - Planejamento e Preparacao
