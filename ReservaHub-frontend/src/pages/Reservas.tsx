@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { CalendarDays, Plus, XCircle } from 'lucide-react'
+import { addDays, format, parseISO, startOfDay } from 'date-fns'
+import { CalendarDays, Plus, Repeat, XCircle } from 'lucide-react'
 import { reservaService } from '../api/reservaService'
 import { salaService } from '../api/salaService'
 import { getErrorMessage } from '../api/client'
@@ -7,7 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
+import { Card, CardBody, CardHeader } from '../components/ui/Card'
 import { ConfirmModal } from '../components/ui/ConfirmModal'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Input } from '../components/ui/Input'
@@ -15,7 +16,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { Modal } from '../components/ui/Modal'
 import { Select } from '../components/ui/Select'
 import type { Reserva, Sala } from '../types'
-import { gerarHorariosDisponiveis } from '../utils/availability'
+import { gerarHorariosDisponiveis, horarioDisponivel } from '../utils/availability'
 import { formatDate, formatTime } from '../utils/format'
 
 function statusBadge(status?: string | null) {
@@ -31,6 +32,76 @@ function statusBadge(status?: string | null) {
   }
 }
 
+const diaSemanaFormatter = new Intl.DateTimeFormat('pt-BR', { weekday: 'long' })
+
+function proximaDataParaMesmoDiaDaSemana(dataReserva: string): string {
+  const hoje = startOfDay(new Date())
+  const diaDaReserva = parseISO(dataReserva).getDay()
+  const diasAteProximaData = (diaDaReserva - hoje.getDay() + 7) % 7
+
+  return format(addDays(hoje, diasAteProximaData), 'yyyy-MM-dd')
+}
+
+function ordenarReservasMaisRecentes(a: Reserva, b: Reserva): number {
+  return `${b.dataReserva}T${b.horaInicio}`.localeCompare(`${a.dataReserva}T${a.horaInicio}`)
+}
+
+/** Agrupa por sala + dia da semana + horário para não repetir o mesmo padrão. */
+function chavePadraoRecorrente(reserva: Reserva): string {
+  const diaSemana = parseISO(reserva.dataReserva).getDay()
+  return `${reserva.salaId}-${diaSemana}-${reserva.horaInicio}-${reserva.horaFim}`
+}
+
+function montarRecomendacoesRecorrentes(
+  reservasDoUsuario: Reserva[],
+  todasReservas: Reserva[]
+) {
+  const padroesVistos = new Set<string>()
+  const recomendacoes: Array<{
+    chave: string
+    reserva: Reserva
+    dataSugerida: string
+    disponivel: boolean
+  }> = []
+
+  for (const reserva of reservasDoUsuario
+    .filter((r) => r.status !== 'CANCELADA')
+    .sort(ordenarReservasMaisRecentes)) {
+    const chave = chavePadraoRecorrente(reserva)
+    if (padroesVistos.has(chave)) continue
+    padroesVistos.add(chave)
+
+    const dataSugerida = proximaDataParaMesmoDiaDaSemana(reserva.dataReserva)
+
+    const jaReservado = reservasDoUsuario.some(
+      (r) =>
+        r.status === 'ATIVA' &&
+        r.salaId === reserva.salaId &&
+        r.dataReserva === dataSugerida &&
+        r.horaInicio === reserva.horaInicio &&
+        r.horaFim === reserva.horaFim
+    )
+    if (jaReservado) continue
+
+    recomendacoes.push({
+      chave,
+      reserva,
+      dataSugerida,
+      disponivel: horarioDisponivel(
+        todasReservas,
+        reserva.salaId,
+        dataSugerida,
+        reserva.horaInicio,
+        reserva.horaFim
+      ),
+    })
+
+    if (recomendacoes.length >= 3) break
+  }
+
+  return recomendacoes
+}
+
 export function Reservas() {
   const { user } = useAuth()
   const { showToast } = useToast()
@@ -40,6 +111,7 @@ export function Reservas() {
   const [modalOpen, setModalOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [canceling, setCanceling] = useState(false)
+  const [reservaRecorrenteId, setReservaRecorrenteId] = useState<number | null>(null)
   const [filtro, setFiltro] = useState<'todas' | 'ativas' | 'canceladas'>('todas')
   const [reservaParaCancelar, setReservaParaCancelar] = useState<Reserva | null>(null)
   const [form, setForm] = useState({
@@ -73,6 +145,8 @@ export function Reservas() {
     ? reservas
     : reservas.filter((r) => r.usuarioId === user?.id)
 
+  const reservasDoUsuario = reservas.filter((r) => r.usuarioId === user?.id)
+
   const reservasFiltradas = minhasReservas.filter((r) => {
     if (filtro === 'ativas') return r.status === 'ATIVA'
     if (filtro === 'canceladas') return r.status === 'CANCELADA'
@@ -83,6 +157,8 @@ export function Reservas() {
     form.salaId && form.dataReserva
       ? gerarHorariosDisponiveis(reservas, Number(form.salaId), form.dataReserva)
       : []
+
+  const recomendacoesRecorrentes = montarRecomendacoesRecorrentes(reservasDoUsuario, reservas)
 
   const openCreate = () => {
     setForm({
@@ -123,6 +199,27 @@ export function Reservas() {
       showToast(getErrorMessage(error), 'error')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleReservarRecorrente = async (reserva: Reserva, dataSugerida: string) => {
+    setReservaRecorrenteId(reserva.id)
+    try {
+      await reservaService.criar({
+        usuarioId: user!.id,
+        salaId: reserva.salaId,
+        dataReserva: dataSugerida,
+        horaInicio: reserva.horaInicio,
+        horaFim: reserva.horaFim,
+        status: 'ATIVA',
+        observacao: reserva.observacao || null,
+      })
+      showToast('Reserva recorrente criada com sucesso!', 'success')
+      await load()
+    } catch (error) {
+      showToast(getErrorMessage(error), 'error')
+    } finally {
+      setReservaRecorrenteId(null)
     }
   }
 
@@ -173,6 +270,53 @@ export function Reservas() {
           </button>
         ))}
       </div>
+
+      {recomendacoesRecorrentes.length > 0 && (
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                <Repeat className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-slate-900">Reservas recorrentes sugeridas</h2>
+                <p className="text-sm text-slate-500">
+                  Baseadas nas suas últimas 3 reservas não canceladas.
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <div className="grid gap-3 lg:grid-cols-3">
+              {recomendacoesRecorrentes.map(({ chave, reserva, dataSugerida, disponivel }) => (
+                <div
+                  key={chave}
+                  className="rounded-xl border border-slate-100 bg-slate-50/60 p-4"
+                >
+                  <div className="mb-4">
+                    <p className="font-medium text-slate-900">{reserva.salaNome}</p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {diaSemanaFormatter.format(parseISO(dataSugerida))}, {formatDate(dataSugerida)}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      {formatTime(reserva.horaInicio)} - {formatTime(reserva.horaFim)}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    disabled={!disponivel}
+                    loading={reservaRecorrenteId === reserva.id}
+                    onClick={() => handleReservarRecorrente(reserva, dataSugerida)}
+                  >
+                    {disponivel ? 'Reservar já' : 'Horário indisponível'}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+      )}
 
       {reservasFiltradas.length === 0 ? (
         <EmptyState
